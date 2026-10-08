@@ -2,9 +2,17 @@
 #define JOB_QUEUE_H
 
 #include <pthread.h>
+// signal new job
+// signal job removed
 
 struct job_queue {
-  int dummy;
+  int total_capacity;
+  int current_capacity;
+  char **queue;
+  pthread_mutex_t mutex;
+  pthread_cond_t new_job;
+  pthread_cond_t removed_job;
+  int terminated;
 };
 
 // Initialise a job queue with the given capacity.  The queue starts out
