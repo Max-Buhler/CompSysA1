@@ -29,10 +29,13 @@ int job_queue_destroy(struct job_queue *job_queue) {
     job_queue->terminated = 1;
     if (job_queue->current_capacity > 0) {
       pthread_cond_wait(&job_queue->removed_job, &job_queue->mutex);
+      // Make sure that no new job can be added
     } else {
       done = 1;
     }
-    pthread_cond_broadcast(&job_queue->new_job); // Wake up pop threads
+    // Wake up pop threads, and making sure no new jobs can be added
+    pthread_cond_broadcast(&job_queue->new_job);
+    pthread_cond_broadcast(&job_queue->removed_job);
     pthread_mutex_unlock(&job_queue->mutex);
   }
   free(job_queue->queue);
@@ -40,6 +43,9 @@ int job_queue_destroy(struct job_queue *job_queue) {
 }
 
 int job_queue_push(struct job_queue *job_queue, void *data) {
+  if (job_queue->terminated) { // Disallow pushes after termination
+    return -1;
+  }
   int done = 0;
   while (!done) {
     pthread_mutex_lock(&job_queue->mutex);
@@ -65,7 +71,8 @@ int job_queue_pop(struct job_queue *job_queue, void **data) {
     if (job_queue->terminated && job_queue->current_capacity == 0) {
       done = 1;
       terminated = 1;
-      pthread_cond_signal(&job_queue->removed_job);
+      // both wake up remaining pushers and destroyer
+      pthread_cond_broadcast(&job_queue->removed_job);
     } else if (job_queue->current_capacity == 0) {
       pthread_cond_wait(&job_queue->new_job, &job_queue->mutex);
     } else {
