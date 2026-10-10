@@ -38,19 +38,23 @@ int job_queue_destroy(struct job_queue *job_queue) {
     pthread_cond_broadcast(&job_queue->removed_job);
     pthread_mutex_unlock(&job_queue->mutex);
   }
+  pthread_cond_destroy(&job_queue->new_job);
+  pthread_cond_destroy(&job_queue->removed_job);
+  pthread_mutex_destroy(&job_queue->mutex);
   free(job_queue->queue);
   return 0;
 }
 
 int job_queue_push(struct job_queue *job_queue, void *data) {
-  if (job_queue->terminated) { // Disallow pushes after termination
-    return -1;
-  }
   int done = 0;
+  int terminated = 0;
   while (!done) {
     pthread_mutex_lock(&job_queue->mutex);
-    if (job_queue->current_capacity >=
-        job_queue->total_capacity) { // not enough space
+    if (job_queue->terminated) { // Disallow pushes after termination
+      done = 1;
+      terminated = 1;
+    } else if (job_queue->current_capacity >=
+               job_queue->total_capacity) { // not enough space
       pthread_cond_wait(&job_queue->removed_job, &job_queue->mutex);
     } else {
       job_queue->queue[job_queue->current_capacity] = (char *)data;
@@ -59,6 +63,9 @@ int job_queue_push(struct job_queue *job_queue, void *data) {
       pthread_cond_signal(&job_queue->new_job);
     }
     pthread_mutex_unlock(&job_queue->mutex);
+  }
+  if (terminated) {
+    return -1;
   }
   return 0;
 }

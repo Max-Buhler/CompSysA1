@@ -14,7 +14,8 @@ job_queue.o: job_queue.c job_queue.h
 	$(CC) -o $@ $^ $(CFLAGS)
 
 test: $(TESTS)
-	@set e; for test in $(TESTS); do echo ./$$test; ./$$test; done
+	@for test in $(TESTS); do ./$$test || exit 1; done
+	@bash test_fauxgrep-mt.sh
 
 clean:
 	rm -rf $(TESTS) $(EXAMPLES) *.o core
