@@ -38,9 +38,6 @@ int job_queue_destroy(struct job_queue *job_queue) {
     pthread_cond_broadcast(&job_queue->removed_job);
     pthread_mutex_unlock(&job_queue->mutex);
   }
-  pthread_cond_destroy(&job_queue->new_job);
-  pthread_cond_destroy(&job_queue->removed_job);
-  pthread_mutex_destroy(&job_queue->mutex);
   free(job_queue->queue);
   return 0;
 }
