@@ -17,6 +17,9 @@ test: $(TESTS)
 	@for test in $(TESTS); do ./$$test || exit 1; done
 	@bash test_fauxgrep-mt.sh
 
+bench: 
+	@bash bench.sh
+
 clean:
 	rm -rf $(TESTS) $(EXAMPLES) *.o core
 
