@@ -41,6 +41,7 @@ int job_queue_destroy(struct job_queue *job_queue) {
   return 0;
 }
 
+// TODO: Consider removing unneccessary MUTEX direct lock/unlock to minimize clock cycles
 int job_queue_push(struct job_queue *job_queue, void *data) {
   int done = 0;
   int terminated = 0;

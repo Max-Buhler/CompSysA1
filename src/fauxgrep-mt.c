@@ -107,7 +107,7 @@ int main(int argc, char *const *argv) {
 
   // Create job queue.
   struct job_queue jq;
-  job_queue_init(&jq, 64);
+  job_queue_init(&jq, 64); // TODO: Why 64? Maybe its fine. Right now pop is O(n), so maybe keep it low?
 
   struct worker_args wa = {.needle = needle, .jq = &jq};
 
@@ -138,7 +138,7 @@ int main(int argc, char *const *argv) {
     case FTS_D:
       break;
     case FTS_F:
-      job_queue_push(&jq, (void *)strdup(p->fts_path)); // Unsure if this works
+      job_queue_push(&jq, (void *)strdup(p->fts_path));
       break;
     default:
       break;
@@ -150,7 +150,7 @@ int main(int argc, char *const *argv) {
   // Destroy the queue.
   job_queue_destroy(&jq);
 
-  // Wait for all threads to finish.  This is important, at some may
+  // Wait for all threads to finish.  This is important, as some may
   // still be working on their job.
   for (int i = 0; i < num_threads; i++) {
     if (pthread_join(threads[i], NULL) != 0) {
