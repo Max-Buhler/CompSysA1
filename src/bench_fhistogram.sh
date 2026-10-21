@@ -30,18 +30,33 @@ for algorithm in "${ALGORITHMS[@]}"; do
         printf "%-25s" "$algorithm"
 
         for dataset in "${DATASETS[@]}"; do
-                start=$EPOCHREALTIME
+                # First run decides the repeat count:
+                # <5s -> 100 runs, 5-15s -> 3 runs, >=15s -> 1 run.
+                status=0
+                total=0
+                runs=1
+                i=0
+                while ((i < runs)); do
+                        start=$EPOCHREALTIME
 
-                if "${CMD[@]}" "$dataset" >/dev/null 2>&1; then
-                        status=0
-                else
-                        status=$?
-                fi
+                        if ! "${CMD[@]}" "$dataset" >/dev/null 2>&1; then
+                                status=$?
+                        fi
 
-                end=$EPOCHREALTIME
+                        end=$EPOCHREALTIME
 
-                elapsed=$(awk -v start="$start" -v end="$end" \
-                        'BEGIN { printf "%.3f", end - start }')
+                        total=$(awk -v t="$total" -v start="$start" -v end="$end" \
+                                'BEGIN { printf "%.6f", t + end - start }')
+
+                        if ((i == 0)); then
+                                runs=$(awk -v t="$total" \
+                                        'BEGIN { print (t < 5) ? 100 : (t < 15) ? 3 : 1 }')
+                        fi
+                        i=$((i + 1))
+                done
+
+                elapsed=$(awk -v t="$total" -v n="$runs" \
+                        'BEGIN { printf "%.3f", t / n }')
 
                 if ((status == 0)); then
                         printf " %14s" "$elapsed"
