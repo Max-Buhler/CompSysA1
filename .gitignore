@@ -1,4 +1,12 @@
 planet-latest_geonames.tsv
+
+# Compiled binaries (any file without an extension).
+# Must stay above the rules below so they can still ignore *.o, *.dSYM/ etc.
+*
+!*/
+!*.*
+!Makefile
+
 # Prerequisites
 *.d
 
