@@ -84,7 +84,9 @@ void *worker_print_histogram(void *arg) {
   while (!terminate) {
 
     nanosleep(&delay, NULL);
+    pthread_mutex_lock(&glogal_histogram_mutex);
     print_histogram(global_histogram);
+    pthread_mutex_unlock(&glogal_histogram_mutex);
   }
   return 0;
 }
