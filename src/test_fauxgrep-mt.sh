@@ -36,5 +36,6 @@ compare100() {
 }
 
 compare France 1
+compare Lavaqueresse 1
 compare100 France 1
 compare dsajdbhjwhjwej 16
