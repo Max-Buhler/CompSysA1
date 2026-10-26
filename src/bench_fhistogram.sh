@@ -30,11 +30,20 @@ for algorithm in "${ALGORITHMS[@]}"; do
         printf "%-25s" "$algorithm"
 
         for dataset in "${DATASETS[@]}"; do
-                # First run decides the repeat count:
-                # <5s -> 100 runs, 5-15s -> 3 runs, >=15s -> 1 run.
+                # Fixed repeat counts: 100 runs everywhere, except 100big_files
+                # where the sequential and -n 1/2 variants run once and the
+                # rest run 5 times.
                 status=0
                 total=0
-                runs=1
+                runs=100
+                if [[ "$dataset" == "./100big_files/" ]]; then
+                        case "$algorithm" in
+                        "./fhistogram" | "./fhistogram-mt -n 1" | "./fhistogram-mt -n 2")
+                                runs=1 ;;
+                        *)
+                                runs=5 ;;
+                        esac
+                fi
                 i=0
                 while ((i < runs)); do
                         start=$EPOCHREALTIME
@@ -48,10 +57,6 @@ for algorithm in "${ALGORITHMS[@]}"; do
                         total=$(awk -v t="$total" -v start="$start" -v end="$end" \
                                 'BEGIN { printf "%.6f", t + end - start }')
 
-                        if ((i == 0)); then
-                                runs=$(awk -v t="$total" \
-                                        'BEGIN { print (t < 5) ? 100 : (t < 15) ? 3 : 1 }')
-                        fi
                         i=$((i + 1))
                 done
 
