@@ -116,8 +116,6 @@ void *worker(void *arg) {
   void *jpointer;
   // Act
   job_queue_pop(wa->jq, &jpointer);
-  struct job result = *(struct job *)jpointer;
-  wa->job.id = result.id;
   return NULL;
 }
 
