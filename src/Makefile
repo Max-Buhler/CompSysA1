@@ -16,6 +16,7 @@ job_queue.o: job_queue.c job_queue.h
 test: $(TESTS)
 	@for test in $(TESTS); do ./$$test || exit 1; done
 	@bash test_fauxgrep-mt.sh
+	@bash test_fhistogram-mt.sh
 
 bench: 
 	@bash bench.sh
