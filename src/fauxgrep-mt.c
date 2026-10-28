@@ -39,10 +39,15 @@ int fauxgrep_file(char const *needle, char const *path) {
   size_t linelen = 0;
   int lineno = 1;
 
-  while (getline(&line, &linelen, f) != -1) {
+  ssize_t n;
+  while ((n = getline(&line, &linelen, f)) != -1) {
     if (strstr(line, needle) != NULL) {
       assert(pthread_mutex_lock(&stdout_mutex) == 0);
-      printf("%s:%d: %s", path, lineno, line);
+      printf("%s:%d: ", path, lineno);
+      fwrite(line, 1, n, stdout);
+      if (line[n - 1] != '\n') {
+        printf("\n");
+      }
       assert(pthread_mutex_unlock(&stdout_mutex) == 0);
     }
 
@@ -93,10 +98,16 @@ int main(int argc, char *const *argv) {
 
     needle = argv[3];
     paths = &argv[4];
+    if (argc < 5) {
+      errx(1, "usage: [-n INT] STRING paths...");
+    }
 
   } else {
     needle = argv[1];
     paths = &argv[2];
+    if (argc < 3) {
+      errx(1, "usage: [-n INT] STRING paths...");
+    }
   }
 
   // Create job queue.

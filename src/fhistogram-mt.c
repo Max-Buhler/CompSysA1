@@ -165,6 +165,8 @@ int main(int argc, char *const *argv) {
   terminate = 1;
   pthread_join(ptid, NULL);
 
+  // The printer may have drawn its last frame before the final merges.
+  print_histogram(global_histogram);
   move_lines(9);
 
   return 0;
