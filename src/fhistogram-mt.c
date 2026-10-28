@@ -101,12 +101,6 @@ int main(int argc, char *const *argv) {
   char *const *paths = &argv[1];
 
   if (argc > 3 && strcmp(argv[1], "-n") == 0) {
-    // Since atoi() simply returns zero on syntax errors, we cannot
-    // distinguish between the user entering a zero, or some
-    // non-numeric garbage.  In fact, we cannot even tell whether the
-    // given option is suffixed by garbage, i.e. '123foo' returns
-    // '123'.  A more robust solution would use strtol(), but its
-    // interface is more complicated, so here we are.
     num_threads = atoi(argv[2]);
 
     if (num_threads < 1) {
@@ -134,11 +128,6 @@ int main(int argc, char *const *argv) {
   pthread_t ptid;
   pthread_create(&ptid, NULL, worker_print_histogram, (void *)&refresh_rate);
 
-  // FTS_LOGICAL = follow symbolic links
-  // FTS_NOCHDIR = do not change the working directory of the process
-  //
-  // (These are not particularly important distinctions for our simple
-  // uses.)
   int fts_options = FTS_LOGICAL | FTS_NOCHDIR;
 
   FTS *ftsp;
