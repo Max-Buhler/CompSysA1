@@ -21,7 +21,7 @@ bench:
 	@bash bench.sh
 
 clean:
-	rm -rf $(TESTS) $(EXAMPLES) *.o core
+	rm -rf $(TESTS) $(EXAMPLES) *.o core *.dSYM
 
 zip: ../src.zip
 
