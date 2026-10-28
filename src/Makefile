@@ -19,7 +19,8 @@ test: $(TESTS)
 	@bash test_fhistogram-mt.sh
 
 bench: 
-	@bash bench.sh
+	@bash bench_time_fauxgrep.sh
+	@bash bench_time_fhistogram.sh
 
 clean:
 	rm -rf $(TESTS) $(EXAMPLES) *.o core *.dSYM
