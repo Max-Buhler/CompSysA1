@@ -27,9 +27,14 @@ int fauxgrep_file(char const *needle, char const *path) {
   size_t linelen = 0;
   int lineno = 1;
 
-  while (getline(&line, &linelen, f) != -1) {
+  ssize_t n;
+  while ((n = getline(&line, &linelen, f)) != -1) {
     if (strstr(line, needle) != NULL) {
-      printf("%s:%d: %s", path, lineno, line);
+      printf("%s:%d: ", path, lineno);
+      fwrite(line, 1, n, stdout);
+      if (line[n - 1] != '\n') {
+        printf("\n");
+      }
     }
 
     lineno++;
@@ -42,7 +47,7 @@ int fauxgrep_file(char const *needle, char const *path) {
 }
 
 int main(int argc, char * const *argv) {
-  if (argc < 2) {
+  if (argc < 3) {
     err(1, "usage: STRING paths...");
     exit(1);
   }
